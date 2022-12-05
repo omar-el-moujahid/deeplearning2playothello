@@ -173,7 +173,7 @@ dataset_conf={}
 dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="../dataset/"
+dataset_conf["path_dataset"]="dataset/"
 dataset_conf['batch_size']=1000
 
 print("Training Dataste ... ")
@@ -185,7 +185,7 @@ dataset_conf={}
 dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="../dataset/"
+dataset_conf["path_dataset"]="dataset/"
 dataset_conf['batch_size']=1000
 
 print("Development Dataste ... ")
