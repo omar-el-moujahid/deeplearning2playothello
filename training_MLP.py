@@ -29,7 +29,8 @@ class SampleManager():
                  game_name,
                  file_dir,
                  end_move,
-                 len_moves):
+                 len_moves,
+                 isBlackPlayer):
         
         ''' each sample is a sequence of board states 
         from index (end_move - len_moves) to inedx end_move
@@ -38,12 +39,15 @@ class SampleManager():
         game_name: name of file (game)
         end_move : the index of last recent move 
         len_moves: length of sequence
+        isBlackPlayer: register the turn : True if it is a move of black player
+        	(if black is the current player the board should be multiplay by -1)
         '''
         
         self.file_dir=file_dir
         self.game_name=game_name
         self.end_move=end_move
         self.len_moves=len_moves
+        self.isBlackPlayer=isBlackPlayer
     
     def set_file_dir(file_dir):
         self.file_dir=file_dir
@@ -96,7 +100,7 @@ class CustomDataset(Dataset):
         #read all file name from train/dev/test.txt files
         with open(self.filelist) as f:
             list_files = [line.rstrip() for line in f]
-        self.game_files_name=list_files#[s + ".npy" for s in list_files]       
+        self.game_files_name=list_files#[s + ".h5" for s in list_files]       
     
         #creat a list of samples as SampleManager objcets
         self.samples=np.empty(len(self.game_files_name)*30, dtype=object)
@@ -115,7 +119,8 @@ class CustomDataset(Dataset):
                 self.samples[idx]=SampleManager(gm_name,
                                                 self.path_dataset,
                                                 end_move,
-                                                self.len_samples)
+                                                self.len_samples,
+                                                is_black_winner)
                 idx+=1
         
         np.random.shuffle(self.samples)
@@ -141,11 +146,17 @@ class CustomDataset(Dataset):
             #adding the inital of game as the end of sequence sample
             for i in range(self.samples[idx].end_move+1):
                 features.append(game_log[0][i])
+                
+        #if black is the current player the board should be multiplay by -1    
+        if self.samples[idx].isBlackPlayer:       
+            features=np.array([features],dtype=float)*-1
+        else:
+            features=np.array([features],dtype=float)
             
         #y is a move matrix
         y=np.array(game_log[1][self.samples[idx].end_move]).flatten()
             
-        return np.array([features],dtype=float),y,self.len_samples
+        return features,y,self.len_samples
 
 
 def my_collate(batch):
@@ -173,7 +184,7 @@ dataset_conf={}
 dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="dataset/"
+dataset_conf["path_dataset"]="../dataset/"
 dataset_conf['batch_size']=1000
 
 print("Training Dataste ... ")
@@ -185,7 +196,7 @@ dataset_conf={}
 dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="dataset/"
+dataset_conf["path_dataset"]="../dataset/"
 dataset_conf['batch_size']=1000
 
 print("Development Dataste ... ")

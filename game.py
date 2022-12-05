@@ -18,10 +18,10 @@ BOARD_SIZE=8
 
 def initialze_board():
     board_stat_init=np.zeros((BOARD_SIZE,BOARD_SIZE))
-    board_stat_init[3,3]=-1
-    board_stat_init[4,4]=-1
-    board_stat_init[3,4]=+1
-    board_stat_init[4,3]=+1
+    board_stat_init[3,3]=+1
+    board_stat_init[4,4]=+1
+    board_stat_init[3,4]=-1
+    board_stat_init[4,3]=-1
     
     return board_stat_init
 
@@ -82,8 +82,8 @@ else:
 
 
 for g in [0,1]:
-    # Once player1 is Black and Player2 is White
-    # and next player1 is White and Player2 is Black
+    # Two rounds would be played
+    # First player1 starts game, and then Player2 starts the other game
     if g:
         conf={}
         conf['player1']= sys.argv[1]
@@ -100,7 +100,7 @@ for g in [0,1]:
 
     while not np.all(board_stat):
 
-        NgBlackPsWhith=+1
+        NgBlackPsWhith=-1
         board_stats_seq.append(copy.copy(board_stat))
         if torch.cuda.is_available():
             model = torch.load(conf['player1'])
@@ -109,8 +109,9 @@ for g in [0,1]:
         model.eval()
 
         input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
-
-        move1_prob = model(torch.tensor(np.array([input_seq_boards])).float().to(device))
+	#if black is the current player the board should be multiplay by -1
+        model_input=np.array([input_seq_boards])*-1
+        move1_prob = model(torch.tensor(model_input).float().to(device))
         move1_prob=move1_prob.cpu().detach().numpy().reshape(8,8)
 
         legal_moves=get_legal_moves(board_stat,NgBlackPsWhith)
@@ -127,9 +128,10 @@ for g in [0,1]:
 
         else:
             print("Black pass")
+            moves_log+="__"
 
 
-        NgBlackPsWhith=-1
+        NgBlackPsWhith=+1
         board_stats_seq.append(copy.copy(board_stat))
         if torch.cuda.is_available():
             model = torch.load(conf['player2'])
@@ -138,7 +140,9 @@ for g in [0,1]:
         model.eval()
 
         input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
-        move1_prob = model(torch.tensor(np.array([input_seq_boards])).float().to(device))
+        #if black is the current player the board should be multiplay by -1
+        model_input=np.array([input_seq_boards])
+        move1_prob = model(torch.tensor(model_input).float().to(device))
         move1_prob=move1_prob.cpu().detach().numpy().reshape(8,8)
 
         legal_moves=get_legal_moves(board_stat,NgBlackPsWhith)
@@ -156,14 +160,15 @@ for g in [0,1]:
 
         else:
             print("White pass")
+            moves_log+="__"
 
     board_stats_seq.append(copy.copy(board_stat))
-    print(moves_log)
+    print("Moves log:",moves_log)
 
-    if np.sum(board_stat)>0:
-        print(f"Black {conf['player1']} is winner")
-    elif np.sum(board_stat)<0:
-        print(f"White {conf['player2']} is winner")
+    if np.sum(board_stat)<0:
+        print(f"Black {conf['player1']} is winner (with {-1*int(np.sum(board_stat))} points)")
+    elif np.sum(board_stat)>0:
+        print(f"White {conf['player2']} is winner (with {int(np.sum(board_stat))} points)")
     else:
         print(f"Draw")
 
@@ -171,7 +176,7 @@ for g in [0,1]:
     fig,ax = plt.subplots()
     ims = []
     for i in range(len(board_stats_seq)):
-        im = plt.imshow(board_stats_seq[i],
+        im = plt.imshow(board_stats_seq[i]*-1,
                         extent=[0.5,8.5,0.5,8.5],
                         cmap='binary',
                         interpolation='nearest')
