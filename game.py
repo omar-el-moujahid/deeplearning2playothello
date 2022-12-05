@@ -183,4 +183,4 @@ for g in [0,1]:
         ims.append([im])
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
                                     repeat_delay=1000)   
-    ani.save(f"game_{g}.gif", writer='imagemagick', fps=0.8)
+    ani.save(f"games/game_{g}.gif", writer='imagemagick', fps=0.8)
