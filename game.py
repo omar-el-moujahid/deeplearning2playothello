@@ -80,7 +80,6 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 
-
 for g in [0,1]:
     # Two rounds would be played
     # First player1 starts game, and then Player2 starts the other game
@@ -97,8 +96,9 @@ for g in [0,1]:
 
     moves_log=""
     board_stats_seq=[]
+    pass2player=False
 
-    while not np.all(board_stat):
+    while not np.all(board_stat) and not pass2player:
 
         NgBlackPsWhith=-1
         board_stats_seq.append(copy.copy(board_stat))
@@ -128,6 +128,8 @@ for g in [0,1]:
 
         else:
             print("Black pass")
+            if moves_log[-2:]=="__":
+                pass2player=True
             moves_log+="__"
 
 
@@ -160,6 +162,8 @@ for g in [0,1]:
 
         else:
             print("White pass")
+            if moves_log[-2:]=="__":
+                pass2player=True
             moves_log+="__"
 
     board_stats_seq.append(copy.copy(board_stat))
