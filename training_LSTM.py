@@ -158,16 +158,6 @@ class CustomDataset(Dataset):
         return features,y,self.len_samples
 
 
-def my_collate(batch):
-    batch_size = len(batch)
-    sample_batch = [torch.from_numpy(item[0]).float() for item in batch]
-    target = [item[1] for item in batch]
-    name = [item[2] for item in batch]
-
-    padded_batch = pad_sequence(sample_batch, batch_first=True)
-
-    return [padded_batch, target, name]
-
     
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
