@@ -164,7 +164,7 @@ class CustomDataset(Dataset):
                                                     is_black_winner)
                     idx+=1
         
-        np.random.shuffle(self.samples)
+        #np.random.shuffle(self.samples)
         print(f"Number of samples : {len(self.samples)}")
         
     def __len__(self):
