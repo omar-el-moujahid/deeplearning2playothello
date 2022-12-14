@@ -128,7 +128,7 @@ class CustomDataset(Dataset):
                         for i in range(self.len_samples-end_move-2):
                             features.append(self.starting_board_stat)
                         #adding the inital of game as the end of sequence sample
-                        for i in range(self.samples[idx].end_move+1):
+                        for i in range(end_move+1):
                             features.append(game_log[0][i])
 
                     #if black is the current player the board should be multiplay by -1    
