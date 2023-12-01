@@ -14,13 +14,8 @@ from datetime import datetime
 import h5py
 import copy
 
-from utile import has_tile_to_flip
+from utile import has_tile_to_flip,isBlackWinner,initialze_board,BOARD_SIZE
 from networks_00000 import MLP,LSTMs
-
-BOARD_SIZE=8
-MOVE_DIRS = [(-1, -1), (-1, 0), (-1, +1),
-             (0, -1),           (0, +1),
-             (+1, -1), (+1, 0), (+1, +1)]
 
 
 class SampleManager():
@@ -56,28 +51,6 @@ class SampleManager():
         self.end_move=end_move
     def set_len_moves(len_moves):
         self.len_moves=len_moves
-        
-        
-def isBlackWinner(move_array,board_stat,player=-1):
-
-    move=np.where(move_array == 1)
-    move=[move[0][0],move[1][0]]
-    board_stat[move[0],move[1]]=player
-
-    for direction in MOVE_DIRS:
-        if has_tile_to_flip(move, direction,board_stat,player):
-            i = 1
-            while True:
-                row = move[0] + direction[0] * i
-                col = move[1] + direction[1] * i
-                if board_stat[row][col] == board_stat[move[0], move[1]]:
-                    break
-                else:
-                    board_stat[row][col] = board_stat[move[0], move[1]]
-                    i += 1
-    is_black_winner=sum(sum(board_stat))<0 
-    
-    return is_black_winner
 
 
 class CustomDataset(Dataset):
@@ -86,11 +59,7 @@ class CustomDataset(Dataset):
                  
         self.load_data_once4all=load_data_once4all
         
-        self.starting_board_stat=np.zeros((8,8))
-        self.starting_board_stat[3,3]=-1
-        self.starting_board_stat[4,4]=-1
-        self.starting_board_stat[3,4]=+1
-        self.starting_board_stat[4,3]=+1
+        self.starting_board_stat=initialze_board()
         
         # self.filelist : a list of all games for train/dev/test
         self.filelist=dataset_conf["filelist"]

@@ -12,18 +12,9 @@ from datetime import datetime
 import torch
 import torch.nn as nn
 
-from utile import get_legal_moves,is_legal_move,has_tile_to_flip
+from utile import get_legal_moves,is_legal_move,has_tile_to_flip,initialze_board
 
 BOARD_SIZE=8
-
-def initialze_board():
-    board_stat_init=np.zeros((BOARD_SIZE,BOARD_SIZE))
-    board_stat_init[3,3]=+1
-    board_stat_init[4,4]=+1
-    board_stat_init[3,4]=-1
-    board_stat_init[4,3]=-1
-    
-    return board_stat_init
 
 
 def input_seq_generator(board_stats_seq,length_seq):
@@ -44,16 +35,43 @@ def input_seq_generator(board_stats_seq,length_seq):
     return input_seq
 
 def find_best_move(move1_prob,legal_moves):
+    """
+    Finds the best move based on the provided move probabilities and legal moves.
 
+    Parameters:
+    - move1_prob (numpy.ndarray): 2D array representing the probabilities of moves.
+    - legal_moves (list): List of legal moves.
+
+    Returns:
+    - tuple: The best move coordinates (row, column).
+    """
+
+    # Initialize the best move with the first legal move
     best_move=legal_moves[0]
+    
+    # Initialize the maximum score with the probability of the first legal move
     max_score=move1_prob[legal_moves[0][0],legal_moves[0][1]]
+    
+    # Iterate through all legal moves to find the one with the maximum probability
     for i in range(len(legal_moves)):
+        # Update the best move if the current move has a higher probability
         if move1_prob[legal_moves[i][0],legal_moves[i][1]]>max_score:
             max_score=move1_prob[legal_moves[i][0],legal_moves[i][1]]
             best_move=legal_moves[i]
     return best_move
 
 def apply_flip(best_move,board_stat,NgBlackPsWhith):
+    """
+    Apply tile flipping on the Othello board based on the best move.
+
+    Parameters:
+    - best_move (tuple): Coordinates (row, column) of the best move.
+    - board_stat (numpy.ndarray): 2D array representing the current state of the Othello board.
+    - NgBlackPsWhith (int): Indicator for the current player (Black: -1, White: 1).
+
+    Returns:
+    - numpy.ndarray: Updated Othello board after applying tile flipping.
+    """
     
     MOVE_DIRS = [(-1, -1), (-1, 0), (-1, +1),
              (0, -1),           (0, +1),
@@ -81,7 +99,7 @@ else:
     device = torch.device("cpu")
 
 for g in [0,1]:
-    # Two rounds would be played
+    # Two rounds of game would be played
     # First player1 starts game, and then Player2 starts the other game
     if g:
         conf={}
@@ -109,7 +127,7 @@ for g in [0,1]:
         model.eval()
 
         input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
-	#if black is the current player the board should be multiplay by -1
+    	#if black is the current player the board should be multiplay by -1
         model_input=np.array([input_seq_boards])*-1
         move1_prob = model(torch.tensor(model_input).float().to(device))
         move1_prob=move1_prob.cpu().detach().numpy().reshape(8,8)

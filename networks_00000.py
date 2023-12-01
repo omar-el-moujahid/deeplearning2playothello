@@ -21,8 +21,6 @@ import copy
 import time
 from datetime import datetime
 
-BOARD_SIZE=8
-
 
 def loss_fnc(predictions, targets):
     return nn.CrossEntropyLoss()(input=predictions,target=targets)
