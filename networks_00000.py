@@ -1,25 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from torch.autograd import Variable
-from torch.utils.data import Dataset,DataLoader
-from torch.nn.utils.rnn import pad_sequence
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from scipy.ndimage import gaussian_filter1d
-from sklearn.metrics import f1_score
 from sklearn.metrics import classification_report
 
 from tqdm import tqdm
-import pandas as pd
 import numpy as np
 import os
-import sys
-import h5py
-import json
-import copy
 import time
-from datetime import datetime
 
 
 def loss_fnc(predictions, targets):

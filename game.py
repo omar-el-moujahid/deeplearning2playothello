@@ -1,17 +1,11 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import os
 import sys
 import copy
-import time
 import matplotlib.pyplot as plt
-from datetime import datetime
 
 import torch
-import torch.nn as nn
-
 from utile import get_legal_moves,is_legal_move,has_tile_to_flip,initialze_board
 
 BOARD_SIZE=8
@@ -121,9 +115,9 @@ for g in [0,1]:
         NgBlackPsWhith=-1
         board_stats_seq.append(copy.copy(board_stat))
         if torch.cuda.is_available():
-            model = torch.load(conf['player1'])
+            model = torch.load(conf['player1'],weights_only=False)
         else:
-            model = torch.load(conf['player1'],map_location=torch.device('cpu'))
+            model = torch.load(conf['player1'],map_location=torch.device('cpu'),weights_only=False)
         model.eval()
 
         input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
@@ -154,9 +148,9 @@ for g in [0,1]:
         NgBlackPsWhith=+1
         board_stats_seq.append(copy.copy(board_stat))
         if torch.cuda.is_available():
-            model = torch.load(conf['player2'])
+            model = torch.load(conf['player2'],weights_only=False)
         else:
-            model = torch.load(conf['player2'],map_location=torch.device('cpu'))
+            model = torch.load(conf['player2'],map_location=torch.device('cpu'),weights_only=False)
         model.eval()
 
         input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)

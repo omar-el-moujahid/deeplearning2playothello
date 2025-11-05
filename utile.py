@@ -1,6 +1,3 @@
-import copy
-from tqdm import tqdm
-import csv
 import numpy as np
 
 BOARD_SIZE=8
