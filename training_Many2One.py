@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 from data import CustomDatasetMany
 from utile import BOARD_SIZE
-from networks_00000 import LSTMs
+from networks_e2507480 import LSTMs
 
 
 if torch.cuda.is_available():
@@ -20,7 +20,7 @@ dataset_conf={}
 dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="../dataset/"
+dataset_conf["path_dataset"]="..\dataset\dataset/"
 dataset_conf['batch_size']=1000
 
 print("Training Dataste ... ")
@@ -32,7 +32,7 @@ dataset_conf={}
 dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="../dataset/"
+dataset_conf["path_dataset"]="..\dataset\dataset/"
 dataset_conf['batch_size']=1000
 
 print("Development Dataste ... ")
@@ -42,7 +42,8 @@ devSet = DataLoader(ds_dev, batch_size=dataset_conf['batch_size'])
 conf={}
 conf["board_size"]=BOARD_SIZE
 conf["path_save"]="save_models"
-conf['epoch']=200
+## a personlized epoch number for Many2One training
+conf['epoch']=10
 conf["earlyStopping"]=20
 conf["len_inpout_seq"]=len_samples
 conf["LSTM_conf"]={}
