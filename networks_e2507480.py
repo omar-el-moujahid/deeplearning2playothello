@@ -30,11 +30,19 @@ class MLP(nn.Module):
         self.len_inpout_seq=conf["len_inpout_seq"]
 
         # Define the layers of the MLP
+        # 64 -> 128 -> 128 -> 64
         self.lin1 = nn.Linear(self.board_size*self.board_size, 128)
         self.lin2 = nn.Linear(128, 128)
         self.lin3 = nn.Linear(128, self.board_size*self.board_size)
         self.dropout = nn.Dropout(p=0.1)
         
+        # Architecture plus large : 64 -> 256 -> 128 -> 64
+        # self.lin1 = nn.Linear(self.board_size*self.board_size, 256)
+        # self.lin2 = nn.Linear(256, 128)
+        # self.lin3 = nn.Linear(128, self.board_size*self.board_size)
+
+        # self.dropout = nn.Dropout(p=0.1)
+
     def forward(self, seq):
         """
         Forward pass of the MLP.
@@ -54,6 +62,17 @@ class MLP(nn.Module):
         x = self.lin2(x)
         outp = self.lin3(x)
         return F.softmax(outp, dim=-1)
+        # x = self.lin1(seq)
+        # #  activation function
+        # x = F.relu(x)
+        # x = self.dropout(x)
+
+        # x = self.lin2(x)
+        # x = F.relu(x)
+        # x = self.dropout(x)
+
+        # outp = self.lin3(x)
+        # return F.softmax(outp, dim=-1)
     
     def train_all(self, train, dev, num_epoch, device, optimizer):
         if not os.path.exists(f"{self.path_save}"):
@@ -113,7 +132,9 @@ class MLP(nn.Module):
             
             print("*"*15,f"The best score on DEV {best_epoch} :{round(100*best_dev,3)}%")
 
-        self = torch.load(self.path_save + '/model_' + str(best_epoch) + '.pt',weights_only=False)
+        ## constater erreur ici avec weights_only=False
+        #self = torch.load(self.path_save + '/model_' + str(best_epoch) + '.pt',weights_only=False)
+        self = torch.load(self.path_save + '/model_' + str(best_epoch) + '.pt')
         self.eval()
         _clas_rep = self.evalulate(dev, device)
         print(f"Recalculing the best DEV: WAcc : {100*_clas_rep['weighted avg']['recall']}%")
