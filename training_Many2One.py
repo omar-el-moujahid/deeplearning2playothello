@@ -43,8 +43,8 @@ conf={}
 conf["board_size"]=BOARD_SIZE
 conf["path_save"]="save_models"
 ## a personlized epoch number for Many2One training
-conf['epoch']=10
-conf["earlyStopping"]=20
+conf['epoch']=50
+conf["earlyStopping"]=10
 conf["len_inpout_seq"]=len_samples
 conf["LSTM_conf"]={}
 conf["LSTM_conf"]["hidden_dim"]=128
