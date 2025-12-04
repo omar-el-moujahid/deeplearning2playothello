@@ -20,7 +20,7 @@ dataset_conf={}
 dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="..\dataset\dataset/"
+dataset_conf["path_dataset"]="dataset\dataset/"
 dataset_conf['batch_size']=1000
 
 print("Training Dataste ... ")
@@ -32,7 +32,7 @@ dataset_conf={}
 dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
-dataset_conf["path_dataset"]="..\dataset\dataset/"
+dataset_conf["path_dataset"]="dataset\dataset/"
 dataset_conf['batch_size']=1000
 
 print("Development Dataste ... ")
@@ -43,7 +43,7 @@ conf={}
 conf["board_size"]=BOARD_SIZE
 conf["path_save"]="save_models"
 ## a personlized epoch number for Many2One training
-conf['epoch']=50
+conf['epoch']=30
 conf["earlyStopping"]=10
 conf["len_inpout_seq"]=len_samples
 conf["LSTM_conf"]={}
