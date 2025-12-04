@@ -4,7 +4,11 @@ from torch.utils.data import DataLoader
 from data import CustomDatasetMany
 from utile import BOARD_SIZE
 from networks_e2507480 import LSTMs
-
+import argparse 
+parser = argparse.ArgumentParser()
+parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+parser.add_argument("--batch_size", type=int, default=128, help="Batch size")
+args = parser.parse_args()
 
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
@@ -21,7 +25,8 @@ dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
-dataset_conf['batch_size']=1000
+# dataset_conf['batch_size']=1000
+dataset_conf['batch_size']=args.batch_size
 
 print("Training Dataste ... ")
 ds_train = CustomDatasetMany(dataset_conf)
@@ -33,7 +38,8 @@ dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
-dataset_conf['batch_size']=1000
+# dataset_conf['batch_size']=1000
+dataset_conf['batch_size']=args.batch_size
 
 print("Development Dataste ... ")
 ds_dev = CustomDatasetMany(dataset_conf)

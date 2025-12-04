@@ -5,7 +5,11 @@ from data import CustomDatasetOne
 from utile import BOARD_SIZE
 from networks_e2507480 import MLP
 
-
+import argparse 
+parser = argparse.ArgumentParser()
+parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+parser.add_argument("--batch_size", type=int, default=128, help="Batch size")
+args = parser.parse_args()
 
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
@@ -22,7 +26,8 @@ dataset_conf["filelist"]="train.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
-dataset_conf['batch_size']=1000
+# dataset_conf['batch_size']=1000
+dataset_conf['batch_size']=args.batch_size
 
 print("Training Dataste ... ")
 ds_train = CustomDatasetOne(dataset_conf,load_data_once4all=True)
@@ -34,7 +39,8 @@ dataset_conf["filelist"]="dev.txt"
 #len_samples is 1 for one2one but it can be more than 1 for seq2one modeling
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
-dataset_conf['batch_size']=100
+# dataset_conf['batch_size']=1000
+dataset_conf['batch_size']=args.batch_size
 
 print("Development Dataste ... ")
 ds_dev = CustomDatasetOne(dataset_conf,load_data_once4all=True)
@@ -50,7 +56,8 @@ conf["LSTM_conf"]={}
 conf["LSTM_conf"]["hidden_dim"]=128
 
 model = MLP(conf).to(device)
-opt = torch.optim.Adam(model.parameters(), lr=0.001)
+##opt = torch.optim.Adam(model.parameters(), lr=0.001)
+opt = torch.optim.Adam(model.parameters(), lr=args.lr)
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
