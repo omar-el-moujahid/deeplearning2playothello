@@ -6,7 +6,11 @@ learning_rates = [0.01, 0.005, 0.001, 0.0001]
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
+<<<<<<< HEAD
 batch_size = 100
+=======
+batch_size = 200
+>>>>>>> ac449a9d96240e0b682033085c23f3ad6ec372c5
 
 for lr in learning_rates:
     lr_str = str(lr).replace('.', '_')
