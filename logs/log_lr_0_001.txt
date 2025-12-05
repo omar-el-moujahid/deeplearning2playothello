@@ -1,15 +1,0 @@
-Running on cpu
-Training Dataste ... 
-0it [00:00, ?it/s]135it [00:00, 1345.70it/s]274it [00:00, 1363.77it/s]414it [00:00, 1378.34it/s]564it [00:00, 1419.50it/s]716it [00:00, 1455.06it/s]862it [00:00, 1346.68it/s]999it [00:00, 1179.80it/s]1121it [00:00, 1190.04it/s]1258it [00:00, 1239.38it/s]1399it [00:01, 1284.94it/s]1530it [00:01, 1256.22it/s]1658it [00:01, 1260.17it/s]1786it [00:01, 1205.88it/s]1932it [00:01, 1273.88it/s]2061it [00:01, 1268.72it/s]2206it [00:01, 1319.89it/s]2339it [00:01, 1315.18it/s]2484it [00:01, 1351.36it/s]2636it [00:02, 1396.95it/s]2774it [00:02, 1315.47it/s]
-Traceback (most recent call last):
-  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\training_One2One.py", line 28, in <module>
-    ds_train = CustomDatasetOne(dataset_conf,load_data_once4all=True)
-  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\data.py", line 206, in __init__
-    is_black_winner=isBlackWinner(game_log[1][-1],last_board_state)
-  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\utile.py", line 110, in isBlackWinner
-    if has_tile_to_flip(move, direction,board_stat,player):
-  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\utile.py", line 81, in has_tile_to_flip
-    if not is_valid_coord(row, col) or \
-  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\utile.py", line 59, in is_valid_coord
-    if 0 <= row < board_size and 0 <= col < board_size:
-KeyboardInterrupt

@@ -31,11 +31,15 @@ class MLP(nn.Module):
 
         # Define the layers of the MLP
         # 64 -> 128 -> 128 -> 64
-        self.lin1 = nn.Linear(self.board_size*self.board_size, 128)
-        self.lin2 = nn.Linear(128, 128)
+        #self.lin1 = nn.Linear(self.board_size*self.board_size, 128)
+        #self.lin2 = nn.Linear(128, 128)
+        #self.lin3 = nn.Linear(128, self.board_size*self.board_size)
+        #self.dropout = nn.Dropout(p=0.1)
+ # 64 -> 256 -> 128 -> 64
+        self.lin1 = nn.Linear(self.board_size*self.board_size, 256)
+        self.lin2 = nn.Linear(256, 128)
         self.lin3 = nn.Linear(128, self.board_size*self.board_size)
         self.dropout = nn.Dropout(p=0.1)
-        
         # Architecture plus large : 64 -> 256 -> 128 -> 64
         # self.lin1 = nn.Linear(self.board_size*self.board_size, 256)
         # self.lin2 = nn.Linear(256, 128)
