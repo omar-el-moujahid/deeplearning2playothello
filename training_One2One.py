@@ -61,7 +61,7 @@ conf["LSTM_conf"]["hidden_dim"]=128
 model = MLP(conf).to(device)
 ##opt = torch.optim.Adam(model.parameters(), lr=0.00)
 # opt = torch.optim.Adam(model.parameters(), lr=args.lr)
- opt = torch.optim.AdamW(
+opt = torch.optim.AdamW(
      model.parameters(),
      lr=0.001,
      weight_decay=1e-5  # Regularization via weight decay
