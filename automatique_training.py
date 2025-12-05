@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-learning_rates = [0.1, 0.01, 0.005, 0.001, 0.0001]
+learning_rates = [0.01, 0.005, 0.001, 0.0001]
 
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)

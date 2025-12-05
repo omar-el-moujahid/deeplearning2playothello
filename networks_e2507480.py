@@ -1,3 +1,4 @@
+# from sched import scheduler
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -31,21 +32,31 @@ class MLP(nn.Module):
 
         # Define the layers of the MLP
         # 64 -> 128 -> 128 -> 64
-        #self.lin1 = nn.Linear(self.board_size*self.board_size, 128)
-        #self.lin2 = nn.Linear(128, 128)
-        #self.lin3 = nn.Linear(128, self.board_size*self.board_size)
-        #self.dropout = nn.Dropout(p=0.1)
- # 64 -> 256 -> 128 -> 64
-        self.lin1 = nn.Linear(self.board_size*self.board_size, 256)
-        self.lin2 = nn.Linear(256, 128)
+        self.lin1 = nn.Linear(self.board_size*self.board_size, 128)
+        self.lin2 = nn.Linear(128, 128)
         self.lin3 = nn.Linear(128, self.board_size*self.board_size)
         self.dropout = nn.Dropout(p=0.1)
+        
         # Architecture plus large : 64 -> 256 -> 128 -> 64
         # self.lin1 = nn.Linear(self.board_size*self.board_size, 256)
-        # self.lin2 = nn.Linear(256, 128)
-        # self.lin3 = nn.Linear(128, self.board_size*self.board_size)
+        # self.lin2 = nn.Linear(256, 256)
+        # self.lin3 = nn.Linear(256, self.board_size*self.board_size)
 
         # self.dropout = nn.Dropout(p=0.1)
+        self.board_size = conf["board_size"]
+        self.lin1 = nn.Linear(self.board_size * self.board_size, 256)
+        self.lin2 = nn.Linear(256, 256)
+        self.lin3 = nn.Linear(256, 128)    # New smaller hidden layer
+        self.lin4 = nn.Linear(128, 64)     # Another hidden layer
+        self.lin5 = nn.Linear(64, self.board_size * self.board_size)
+
+        # self.lin1 = nn.Linear(self.board_size * self.board_size, 256)
+        # self.lin2 = nn.Linear(256, 128)  # Smaller size here
+        # self.lin3 = nn.Linear(128, 64)   
+        # self.lin4 = nn.Linear(64, 32)    # New smaller layer
+        # self.lin5 = nn.Linear(32, self.board_size * self.board_size)
+
+        self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, seq):
         """
@@ -62,9 +73,14 @@ class MLP(nn.Module):
             seq=torch.flatten(seq, start_dim=1)
         else:
             seq=torch.flatten(seq, start_dim=0)
-        x = self.lin1(seq)
-        x = self.lin2(x)
-        outp = self.lin3(x)
+        x = F.relu(self.lin1(seq))
+        x = self.dropout(x)
+        x = F.relu(self.lin2(x))
+        x = self.dropout(x)
+        x = F.relu(self.lin3(x))
+        x = self.dropout(x)
+        x = F.relu(self.lin4(x))
+        outp = self.lin5(x)
         return F.softmax(outp, dim=-1)
         # x = self.lin1(seq)
         # #  activation function
@@ -104,7 +120,6 @@ class MLP(nn.Module):
             print("epoch : " + str(epoch) + "/" + str(num_epoch) + ' - loss = '+\
                   str(loss_batch/nb_batch))
             last_training=time.time()-start_time
-
             self.eval()
             
             train_clas_rep=self.evalulate(train, device)

@@ -1,0 +1,20 @@
+Running on cpu
+Training Dataste ... 
+0it [00:00, ?it/s]127it [00:00, 1261.59it/s]271it [00:00, 1362.77it/s]412it [00:00, 1378.87it/s]550it [00:00, 1323.90it/s]683it [00:00, 1270.60it/s]826it [00:00, 1320.26it/s]959it [00:00, 1273.74it/s]1107it [00:00, 1335.42it/s]1168it [00:00, 1313.62it/s]
+Traceback (most recent call last):
+  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\training_One2One.py", line 28, in <module>
+    ds_train = CustomDatasetOne(dataset_conf,load_data_once4all=True)
+  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\data.py", line 204, in __init__
+    game_log=load_game_log(self.path_dataset+gm_name)
+  File "C:\Users\pc\Desktop\MyEnsim\AI\TP_Othelio\deeplearning2playothello\data.py", line 13, in load_game_log
+    game_log = np.array(h5f[game_name][:])  # Read the game log data as a NumPy array
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "C:\Users\pc\anaconda3\envs\Othello_env\lib\site-packages\h5py\_hl\group.py", line 367, in __getitem__
+    oid = h5o.open(self.id, self._e(name), lapl=self._lapl)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5o.pyx", line 255, in h5py.h5o.open
+  File "h5py/h5i.pyx", line 44, in h5py.h5i.wrap_identifier
+  File "<frozen importlib._bootstrap>", line 404, in parent
+KeyboardInterrupt
