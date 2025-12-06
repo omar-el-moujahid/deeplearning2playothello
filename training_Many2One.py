@@ -26,7 +26,9 @@ dataset_conf["filelist"]="train.txt"
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
 # dataset_conf['batch_size']=1000
-dataset_conf['batch_size']=args.batch_size
+# dataset_conf['batch_size']=args.batch_size
+dataset_conf['batch_size']=1000
+
 
 print("Training Dataste ... ")
 ds_train = CustomDatasetMany(dataset_conf)
@@ -39,9 +41,9 @@ dataset_conf["filelist"]="dev.txt"
 dataset_conf["len_samples"]=len_samples
 dataset_conf["path_dataset"]="dataset\dataset/"
 # dataset_conf['batch_size']=1000
-dataset_conf['batch_size']=args.batch_size
-
-print("Development Dataste ... ")
+# dataset_conf['batch_size']=args.batch_size
+dataset_conf['batch_size']=1000
+print("Development Dataste ... ")   
 ds_dev = CustomDatasetMany(dataset_conf)
 devSet = DataLoader(ds_dev, batch_size=dataset_conf['batch_size'])
 
@@ -49,14 +51,21 @@ conf={}
 conf["board_size"]=BOARD_SIZE
 conf["path_save"]="save_models"
 ## a personlized epoch number for Many2One training
-conf['epoch']=30
-conf["earlyStopping"]=10
+conf['epoch']=25
+conf["earlyStopping"]=8
 conf["len_inpout_seq"]=len_samples
 conf["LSTM_conf"]={}
-conf["LSTM_conf"]["hidden_dim"]=128
+conf["LSTM_conf"]["hidden_dim"]=512
 
 model = LSTMs(conf).to(device)
 opt = torch.optim.Adam(model.parameters(), lr=0.005)
+# opt = torch.optim.Adam(model.parameters(), lr=args.lr)
+# opt = torch.optim.AdamW(
+#     model.parameters(),
+#     lr=0.005,
+#     weight_decay=1e-5  # Regularization via weight decay
+# )
+# opt = torch.optim.RMSprop(model.parameters(), lr=0.005, weight_decay=1e-5)
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
