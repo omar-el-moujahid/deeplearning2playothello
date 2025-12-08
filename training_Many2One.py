@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from data import CustomDatasetMany
+from data import CustomDatasetMany_v2
 from utile import BOARD_SIZE
 from networks_e2507480 import LSTMs
 import argparse 
@@ -55,7 +56,7 @@ conf['epoch']=25
 conf["earlyStopping"]=8
 conf["len_inpout_seq"]=len_samples
 conf["LSTM_conf"]={}
-conf["LSTM_conf"]["hidden_dim"]=512
+conf["LSTM_conf"]["hidden_dim"]=128
 
 model = LSTMs(conf).to(device)
 opt = torch.optim.Adam(model.parameters(), lr=0.005)

@@ -203,15 +203,21 @@ class LSTMs(nn.Module):
         self.hidden_dim = conf["LSTM_conf"]["hidden_dim"]
 
          # Define the layers of the LSTM model
-        self.lstm = nn.LSTM(self.board_size*self.board_size, self.hidden_dim,batch_first=True)
+        #self.lstm = nn.LSTM(self.board_size*self.board_size, self.hidden_dim,batch_first=True)
         
+        # biderctional LSTM
+        self.lstm = nn.LSTM(self.board_size*self.board_size, self.hidden_dim, 
+                    batch_first=True, bidirectional=True)
+
         #1st option: using hidden states
-        # self.hidden2output = nn.Linear(self.hidden_dim*2, self.board_size*self.board_size)
+        self.hidden2output = nn.Linear(self.hidden_dim*2, self.board_size*self.board_size)
         
         #2nd option: using output seauence
-        self.hidden2output = nn.Linear(self.hidden_dim, self.board_size*self.board_size)
+        #self.hidden2output = nn.Linear(self.hidden_dim, self.board_size*self.board_size)
         
         self.dropout = nn.Dropout(p=0.1)
+
+        self.layer_norm = nn.LayerNorm(self.hidden_dim * 2)
 
     def forward(self, seq):
         """
@@ -230,6 +236,16 @@ class LSTMs(nn.Module):
             seq=torch.flatten(seq, start_dim=1)
 
         lstm_out, (hn, cn) = self.lstm(seq)
+        # Apply layer normalization
+        lstm_out = self.layer_norm(lstm_out)        
+        # Get the last output of the sequence for prediction
+        if len(seq.shape) > 2:  # batch of sequences
+            outp = self.hidden2output(lstm_out[:, -1, :])  # Only last timestep
+        else:  # single sequence
+            outp = self.hidden2output(lstm_out)  # Directly use lstm_out
+
+        # Apply dropout and linear transformation
+        lstm_out = self.dropout(lstm_out)
         
         #1st option: using hidden states as below
         # outp = self.hidden2output(torch.cat((hn,cn),-1))
@@ -338,3 +354,172 @@ class LSTMs(nn.Module):
         return perf_rep
             
 
+
+class CNN(nn.Module):
+    def __init__(self, conf):
+        super(CNN, self).__init__()
+        self.board_size=conf["board_size"]
+        self.path_save=conf["path_save"]+"_CNN/"
+        self.earlyStopping=conf["earlyStopping"]
+        self.len_inpout_seq=conf["len_inpout_seq"]
+
+        # self.features = nn.Sequential(
+        #     nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1),  
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(inplace=True),
+        #     nn.MaxPool2d(kernel_size=2, stride=2), 
+
+        #     nn.Conv2d(64, 64, kernel_size=3, padding=1),
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(inplace=True),
+        #     nn.MaxPool2d(kernel_size=2, stride=2),
+
+        #     nn.Conv2d(64, 128, kernel_size=3, padding=1),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(inplace=True),
+        #     nn.MaxPool2d(kernel_size=2, stride=2),
+
+        #     nn.Conv2d(128, 128, kernel_size=3, padding=1),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(inplace=True),
+        #     # nn.MaxPool2d(kernel_size=2, stride=2),
+
+        #     # nn.Conv2d(128, 256, kernel_size=3, padding=1),
+        #     # nn.BatchNorm2d(256),
+        #     # nn.ReLU(inplace=True),
+        #     # nn.MaxPool2d(kernel_size=2, stride=2),
+        # )
+        # # Couches linéaires
+        # self.classifier = nn.Sequential(
+        #     nn.Dropout(),
+        #     nn.Linear(128, 128),  
+        #     nn.BatchNorm1d(128),
+        #     nn.ReLU(inplace=True),
+        #     nn.Linear(128, 64), 
+        # )
+        
+        self.features = nn.Sequential(
+            nn.Conv2d(1, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+
+            nn.Conv2d(128, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+        )
+        # Global Average Pooling: 
+        self.gap = nn.AdaptiveAvgPool2d((1, 1))
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Dropout(),
+            nn.Linear(128, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(256, 64),
+        )
+
+
+    def forward(self, x):
+        x = self.features(x)      # (B, 128, 8, 8)
+        x = self.gap(x)           # (B, 128, 1, 1)
+        x = self.classifier(x)    # (B, 64)
+        return x
+
+    def train_all(self, train, dev, num_epoch, device, optimizer):
+        if not os.path.exists(f"{self.path_save}"):
+            os.mkdir(f"{self.path_save}")
+        best_dev = 0.0
+        dev_epoch = 0
+        notchange=0
+        train_acc_list=[]
+        dev_acc_list=[]
+        torch.autograd.set_detect_anomaly(True)
+        init_time=time.time()
+        for epoch in range(1, num_epoch+1):
+            start_time=time.time()
+            loss = 0.0
+            nb_batch =  0
+            loss_batch = 0
+            for batch, labels, _ in tqdm(train):
+                outputs =self(batch.float().to(device))
+                loss = loss_fnc(outputs,labels.clone().detach().float().to(device))
+                loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                nb_batch += 1
+                loss_batch += loss.item()
+            print("epoch : " + str(epoch) + "/" + str(num_epoch) + ' - loss = '+\
+                  str(loss_batch/nb_batch))
+            last_training=time.time()-start_time
+
+            self.eval()
+            
+            train_clas_rep=self.evalulate(train, device)
+            acc_train=train_clas_rep["weighted avg"]["recall"]
+            train_acc_list.append(acc_train)
+            
+            dev_clas_rep=self.evalulate(dev, device)
+            acc_dev=dev_clas_rep["weighted avg"]["recall"]
+            dev_acc_list.append(acc_dev)
+            
+            last_prediction=time.time()-last_training-start_time
+            
+            print(f"Accuracy Train:{round(100*acc_train,2)}%, Dev:{round(100*acc_dev,2)}% ;",
+                  f"Time:{round(time.time()-init_time)}",
+                  f"(last_train:{round(last_training)}, last_pred:{round(last_prediction)})")
+
+            if acc_dev > best_dev or best_dev == 0.0:
+                notchange=0
+                
+                torch.save(self, self.path_save + '/model_' + str(epoch) + '.pt')
+                best_dev = acc_dev
+                best_epoch = epoch
+            else:
+                notchange+=1
+                if notchange>self.earlyStopping:
+                    break
+                
+            self.train()
+            
+            print("*"*15,f"The best score on DEV {best_epoch} :{round(100*best_dev,3)}%")
+
+        ## constater erreur ici avec weights_only=False    
+        self = torch.load(self.path_save + '/model_' + str(best_epoch) + '.pt')
+        self.eval()
+        _clas_rep = self.evalulate(dev, device)
+        print(f"Recalculing the best DEV: WAcc : {100*_clas_rep['weighted avg']['recall']}%")
+
+        
+        return best_epoch
+    
+    
+    def evalulate(self,test_loader, device):
+        
+        all_predicts=[]
+        all_targets=[]
+        
+        for data, target_array,lengths in tqdm(test_loader):
+            output = self(data.float().to(device))
+            predicted=output.argmax(dim=-1).cpu().clone().detach().numpy()
+            target=target_array.argmax(dim=-1).numpy()
+            for i in range(len(predicted)):
+                all_predicts.append(predicted[i])
+                all_targets.append(target[i])
+                           
+        perf_rep=classification_report(all_targets,
+                                      all_predicts,
+                                      zero_division=1,
+                                      digits=4,
+                                      output_dict=True)
+        perf_rep=classification_report(all_targets,all_predicts,zero_division=1,digits=4,output_dict=True)
+        
+        return perf_rep
