@@ -112,71 +112,69 @@ for g in [0,1]:
 
     while not np.all(board_stat) and not pass2player:
 
-        NgBlackPsWhith=-1
+        # -------- BLACK (player1) --------
+        NgBlackPsWhith = -1
         board_stats_seq.append(copy.copy(board_stat))
-        if torch.cuda.is_available():
-            model = torch.load(conf['player1'],weights_only=False)
-        else:
-            model = torch.load(conf['player1'],map_location=torch.device('cpu'),weights_only=False)
+
+        # Always load to the chosen device, then move model to that device
+        model = torch.load(conf['player1'], map_location=device, weights_only=False)  # NEW (map_location=device)
+        model.to(device)  # NEW
         model.eval()
 
-        input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
-    	#if black is the current player the board should be multiplay by -1
-        model_input=np.array([input_seq_boards])*-1
+        input_seq_boards = input_seq_generator(board_stats_seq, model.len_inpout_seq)
+        # if black is the current player the board should be multiplied by -1
+        model_input = np.array([input_seq_boards]) * -1
+
         move1_prob = model(torch.tensor(model_input).float().to(device))
-        move1_prob=move1_prob.cpu().detach().numpy().reshape(8,8)
+        move1_prob = move1_prob.cpu().detach().numpy().reshape(8, 8)
 
-        legal_moves=get_legal_moves(board_stat,NgBlackPsWhith)
+        legal_moves = get_legal_moves(board_stat, NgBlackPsWhith)
 
-        if len(legal_moves)>0:
-            
-            best_move=find_best_move(move1_prob,legal_moves)
+        if len(legal_moves) > 0:
+            best_move = find_best_move(move1_prob, legal_moves)
             print(f"Black: {best_move} < from possible move {legal_moves}")
 
-            board_stat[best_move[0],best_move[1]]=NgBlackPsWhith
-            moves_log+=str(best_move[0]+1)+str(best_move[1]+1)
-            
-            board_stat=apply_flip(best_move,board_stat,NgBlackPsWhith)
+            board_stat[best_move[0], best_move[1]] = NgBlackPsWhith
+            moves_log += str(best_move[0] + 1) + str(best_move[1] + 1)
+
+            board_stat = apply_flip(best_move, board_stat, NgBlackPsWhith)
 
         else:
             print("Black pass")
-            if moves_log[-2:]=="__":
-                pass2player=True
-            moves_log+="__"
+            if moves_log[-2:] == "__":
+                pass2player = True
+            moves_log += "__"
 
-
-        NgBlackPsWhith=+1
+        # -------- WHITE (player2) --------
+        NgBlackPsWhith = +1
         board_stats_seq.append(copy.copy(board_stat))
-        if torch.cuda.is_available():
-            model = torch.load(conf['player2'],weights_only=False)
-        else:
-            model = torch.load(conf['player2'],map_location=torch.device('cpu'),weights_only=False)
+
+        model = torch.load(conf['player2'], map_location=device, weights_only=False)  # NEW
+        model.to(device)  # NEW
         model.eval()
 
-        input_seq_boards=input_seq_generator(board_stats_seq,model.len_inpout_seq)
-        #if black is the current player the board should be multiplay by -1
-        model_input=np.array([input_seq_boards])
+        input_seq_boards = input_seq_generator(board_stats_seq, model.len_inpout_seq)
+        model_input = np.array([input_seq_boards])
+
         move1_prob = model(torch.tensor(model_input).float().to(device))
-        move1_prob=move1_prob.cpu().detach().numpy().reshape(8,8)
+        move1_prob = move1_prob.cpu().detach().numpy().reshape(8, 8)
 
-        legal_moves=get_legal_moves(board_stat,NgBlackPsWhith)
+        legal_moves = get_legal_moves(board_stat, NgBlackPsWhith)
 
-
-        if len(legal_moves)>0:
-            
-            best_move = find_best_move(move1_prob,legal_moves)
+        if len(legal_moves) > 0:
+            best_move = find_best_move(move1_prob, legal_moves)
             print(f"White: {best_move} < from possible move {legal_moves}")
-            
-            board_stat[best_move[0],best_move[1]]=NgBlackPsWhith
-            moves_log+=str(best_move[0]+1)+str(best_move[1]+1)
-            
-            board_stat=apply_flip(best_move,board_stat,NgBlackPsWhith)
+
+            board_stat[best_move[0], best_move[1]] = NgBlackPsWhith
+            moves_log += str(best_move[0] + 1) + str(best_move[1] + 1)
+
+            board_stat = apply_flip(best_move, board_stat, NgBlackPsWhith)
 
         else:
             print("White pass")
-            if moves_log[-2:]=="__":
-                pass2player=True
-            moves_log+="__"
+            if moves_log[-2:] == "__":
+                pass2player = True
+            moves_log += "__"
 
     board_stats_seq.append(copy.copy(board_stat))
     print("Moves log:",moves_log)
