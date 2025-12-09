@@ -59,13 +59,13 @@ conf["LSTM_conf"]={}
 conf["LSTM_conf"]["hidden_dim"]=128
 
 model = CNN_LSTM(conf).to(device)
-opt = torch.optim.Adam(model.parameters(), lr=0.005)
+#opt = torch.optim.Adam(model.parameters(), lr=0.005)
 # opt = torch.optim.Adam(model.parameters(), lr=args.lr)
-# opt = torch.optim.AdamW(
-#     model.parameters(),
-#     lr=0.005,
-#     weight_decay=1e-5  # Regularization via weight decay
-# )
+opt = torch.optim.AdamW(
+     model.parameters(),
+     lr=0.005,
+     weight_decay=1e-5  # Regularization via weight decay
+ )
 # opt = torch.optim.RMSprop(model.parameters(), lr=0.005, weight_decay=1e-5)
 
 def count_parameters(model):
