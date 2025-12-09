@@ -542,7 +542,7 @@ class CNN_LSTM(nn.Module):
         nn.Conv2d(64, 64, 3, padding=1),
         nn.BatchNorm2d(64),
         nn.ReLU(),
-        nn.MaxPool2d(2),  # 8x8 -> 4x4
+        nn.MaxPool2d(2),  
 
         nn.Conv2d(64, 128, 3, padding=1),
         nn.BatchNorm2d(128),
@@ -550,9 +550,8 @@ class CNN_LSTM(nn.Module):
         nn.Conv2d(128, 128, 3, padding=1),
         nn.BatchNorm2d(128),
         nn.ReLU(),
-        nn.MaxPool2d(2),  # 4x4 -> 2x2
-
-        nn.AdaptiveAvgPool2d((1, 1))  # -> (B*T, 128, 1, 1)
+        nn.MaxPool2d(2),  
+        nn.AdaptiveAvgPool2d((1, 1))  
     )
         
         self.lstm = nn.LSTM(128, self.hidden_dim,num_layers=2, batch_first=True)
@@ -696,7 +695,7 @@ class Fine_VIT(nn.Module):
         self.backbone = AutoModelForImageClassification.from_pretrained(
             model_name,
             num_labels=self.num_labels,
-            ignore_mismatched_sizes=True,  # utile si la tête d'origine n'a pas 64 classes
+            ignore_mismatched_sizes=True,  
         )
         print("Nombre de paramètres (entraînables) :",
               sum(p.numel() for p in self.parameters() if p.requires_grad))
